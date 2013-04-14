@@ -1,0 +1,189 @@
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  jQuery(function() {
+    var CourseView, DepartmentView, DepartmentsView, LoginView, NotFoundView, _ref;
+    DepartmentsView = (function(_super) {
+
+      __extends(DepartmentsView, _super);
+
+      function DepartmentsView() {
+        return DepartmentsView.__super__.constructor.apply(this, arguments);
+      }
+
+      DepartmentsView.prototype.el = "#content";
+
+      DepartmentsView.prototype.template = Handlebars.compile($("#departments-template").html());
+
+      DepartmentsView.prototype.initialize = function() {
+        var _ref;
+        this.app = (_ref = window.app) != null ? _ref : {};
+        this.departments = new this.app.DepartmentsCollection();
+        this.departments.bind("reset", this.render, this);
+        this.departments.fetch();
+        return this;
+      };
+
+      DepartmentsView.prototype.render = function() {
+        var depts;
+        depts = {};
+        this.departments.models.map(function(dept) {
+          return depts[dept.id] = {
+            id: dept.get("id"),
+            name: dept.get("name"),
+            hod: dept.get("hod")
+          };
+        });
+        $(this.el).html(this.template({
+          depts: depts
+        }));
+        $(this.el).find("a").click(this.app.show_local_page);
+        return this;
+      };
+
+      return DepartmentsView;
+
+    })(Backbone.View);
+    DepartmentView = (function(_super) {
+
+      __extends(DepartmentView, _super);
+
+      function DepartmentView() {
+        this.render = __bind(this.render, this);
+        return DepartmentView.__super__.constructor.apply(this, arguments);
+      }
+
+      DepartmentView.prototype.template = Handlebars.compile($("#department-template").html());
+
+      DepartmentView.prototype.el = "#content";
+
+      DepartmentView.prototype.initialize = function(options) {
+        var _ref;
+        this.app = (_ref = window.app) != null ? _ref : {};
+        this.department = new this.app.DepartmentModel({
+          id: options.id
+        });
+        this.department.bind("change", this.render, this);
+        this.department.bind("destroy", this.render, this);
+        return this.department.fetch();
+      };
+
+      DepartmentView.prototype.render = function() {
+        $(this.el).html(this.template({
+          dept: this.department.attributes
+        }));
+        $(this.el).find("a").click(this.app.show_local_page);
+        return this;
+      };
+
+      return DepartmentView;
+
+    })(Backbone.View);
+    CourseView = (function(_super) {
+
+      __extends(CourseView, _super);
+
+      function CourseView() {
+        this.render = __bind(this.render, this);
+        return CourseView.__super__.constructor.apply(this, arguments);
+      }
+
+      CourseView.prototype.template = Handlebars.compile($("#course-template").html());
+
+      CourseView.prototype.el = "#content";
+
+      CourseView.prototype.initialize = function(options) {
+        var _ref;
+        this.app = (_ref = window.app) != null ? _ref : {};
+        this.view = options.view;
+        this.course = new this.app.CourseModel({
+          id: options.id
+        });
+        this.course.bind("change", this.render, this);
+        this.course.bind("destroy", this.render, this);
+        this.course.fetch();
+        return this;
+      };
+
+      CourseView.prototype.render = function() {
+        var find_template;
+        find_template = function(type) {
+          return Handlebars.compile($("#course-" + type + "-template").html());
+        };
+        $(this.el).html(this.template({
+          course: this.course.attributes
+        }));
+        $("#specialized_view").html(find_template(this.view.type)({
+          course: this.course.attributes
+        }));
+        $(this.el).find("#specialized_view_selector li").removeClass("active");
+        $(this.el).find("#view_course_" + this.view.type).addClass("active");
+        $(this.el).find("a:not(.local-nav a)").click(this.app.show_local_page);
+        return this;
+      };
+
+      return CourseView;
+
+    })(Backbone.View);
+    LoginView = (function(_super) {
+
+      __extends(LoginView, _super);
+
+      function LoginView() {
+        return LoginView.__super__.constructor.apply(this, arguments);
+      }
+
+      LoginView.prototype.template = Handlebars.compile($("#login-template").html());
+
+      LoginView.prototype.el = "#content";
+
+      LoginView.prototype.initialize = function() {
+        return this.render();
+      };
+
+      LoginView.prototype.render = function() {
+        $(this.el).html(this.template);
+        return this;
+      };
+
+      return LoginView;
+
+    })(Backbone.View);
+    NotFoundView = (function(_super) {
+
+      __extends(NotFoundView, _super);
+
+      function NotFoundView() {
+        return NotFoundView.__super__.constructor.apply(this, arguments);
+      }
+
+      NotFoundView.prototype.template = Handlebars.compile($("#404-template").html());
+
+      NotFoundView.prototype.el = "#content";
+
+      NotFoundView.prototype.initialize = function(path) {
+        this.path = path;
+        return this.render();
+      };
+
+      NotFoundView.prototype.render = function() {
+        $(this.el).html(this.template({
+          url: this.path
+        }));
+        return this;
+      };
+
+      return NotFoundView;
+
+    })(Backbone.View);
+    this.app = (_ref = window.app) != null ? _ref : {};
+    this.app.DepartmentsView = DepartmentsView;
+    this.app.DepartmentView = DepartmentView;
+    this.app.CourseView = CourseView;
+    this.app.LoginView = LoginView;
+    return this.app.NotFoundView = NotFoundView;
+  });
+
+}).call(this);
