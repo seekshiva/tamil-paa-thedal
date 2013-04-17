@@ -14,7 +14,8 @@
 
       ApplicationRouter.prototype.routes = {
         "(search)": "home",
-        "search(?q=(:query))": "search",
+        "search?q=": "home",
+        "search?q=:query": "search",
       };
 
       ApplicationRouter.prototype.home = function() {

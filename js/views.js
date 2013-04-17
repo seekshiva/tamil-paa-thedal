@@ -85,17 +85,15 @@
 		this.result = [];
 		for(var i=0;i<kurals.length;++i) {
 		    for(var j=0;j<kurals[i]["Kural"].length;++j) {
-			temp_kural = kurals[i]["Kural"][j];
-			if(temp_kural["Line1"].indexOf(options.query) != -1 || temp_kural["Line2"].indexOf(options.query) != -1) {
-			    temp_kural["Line1"] = temp_kural["Line1"].replace(options.query, '<span class="label label-success">' +options.query+'</span>');
-			    temp_kural["Line2"] = temp_kural["Line2"].replace(options.query, '<span class="label label-success">' +options.query+'</span>');
+			temp_kural = Object.create(kurals[i]["Kural"][j]);
+			if(temp_kural["Line1"].indexOf(this.query) != -1 || temp_kural["Line2"].indexOf(this.query) != -1) {
+			    temp_kural["Line1"] = temp_kural["Line1"].replace(this.query, '<span class="label label-success">' +this.query+'</span>');
+			    temp_kural["Line2"] = temp_kural["Line2"].replace(this.query, '<span class="label label-success">' +this.query+'</span>');
 			    temp_kural["Number"] %= 10;
-			    console.log(temp_kural);
 			    this.result.push(temp_kural);
 			}
 		    }
 		}
-		console.log(this.result);
 		this.render();
 		return this;
 	    };
