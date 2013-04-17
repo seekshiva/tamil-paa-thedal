@@ -13,13 +13,14 @@
       }
 
       ApplicationRouter.prototype.routes = {
-        "": "home",
-        "search?q=:query": "search",
+        "(search)": "home",
+        "search(?q=(:query))": "search",
       };
 
       ApplicationRouter.prototype.home = function() {
-        this.home_view = new this.app.HomeView();
-        return this;
+	  console.log("fkjdakj");
+          this.home_view = new this.app.HomeView();
+          return this;
       };
 
       ApplicationRouter.prototype.search = function(query) {

@@ -4,8 +4,40 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
     
     jQuery(function() {
-	var HomeView, SearchView, _ref;
+	var AppView, HomeView, SearchView, _ref;
 	
+	AppView = (function(_super) {
+
+	    __extends(AppView, _super);
+	    
+	    function AppView() {
+		this.render = __bind(this.render, this);
+		return HomeView.__super__.constructor.apply(this, arguments);
+	    }
+	    
+	    AppView.prototype.el = "body";
+
+	    AppView.prototype.events = {
+		"keyup #searchInput": "debounceSearch",
+	    };
+	    
+	    AppView.prototype.initialize = function(options) {
+		var _ref;
+		this.app = (_ref = window.app) != null ? _ref : {};
+		return this;
+	    };
+	    
+	    AppView.prototype.debounceSearch = function() {
+		clearTimeout(this.searchTimeout);
+		this.searchTimeout = setTimeout(function() {
+		    this.app = (_ref = window.app) != null ? _ref : {};
+		    this.app.router.navigate("/search?q=" + encodeURIComponent($("#searchInput").val()), {trigger: true});
+		}, 300);
+	    }
+	    return AppView;
+
+	})(Backbone.View);
+
 	HomeView = (function(_super) {
 
 	    __extends(HomeView, _super);
@@ -18,10 +50,6 @@
 	    HomeView.prototype.template = Handlebars.compile($("#home-template").html());
 	    
 	    HomeView.prototype.el = "#app-root";
-
-	    HomeView.prototype.events = {
-		"keypress #searchInput": "debounceSearch"
-	    };
 	    
 	    HomeView.prototype.initialize = function(options) {
 		var _ref;
@@ -34,14 +62,6 @@
 		$(this.el).html(this.template());
 		return this;
 	    };
-	    
-	    HomeView.prototype.debounceSearch = function() {
-		clearTimeout(this.searchTimeout);
-		this.searchTimeout = setTimeout(function() {
-		    this.app = (_ref = window.app) != null ? _ref : {};
-		    this.app.router.navigate("/search?q=" + encodeURIComponent($("#searchInput").val()), {trigger: true});
-		}, 300);
-	    }
 	    return HomeView;
 
 	})(Backbone.View);
@@ -59,28 +79,29 @@
 
 	    SearchView.prototype.el = "#app-root";
 	    
-	    SearchView.prototype.events = {
-		"keypress #searchInput": "debounceSearch"
-	    };
-	    
-	    SearchView.prototype.debounceSearch = function() {
-		clearTimeout(this.searchTimeout);
-		this.searchTimeout = setTimeout(function() {
-		    this.app = (_ref = window.app) != null ? _ref : {};
-		    this.app.router.navigate("/search?q=" + encodeURIComponent($("#searchInput").val()), {trigger: true});
-		}, 300);
-	    }
-
 	    SearchView.prototype.initialize = function(options) {
-		var _ref;
+		var _ref, temp_kural;
 		this.query = options.query;
-		this.app = (_ref = window.app) != null ? _ref : {};
+		this.result = [];
+		for(var i=0;i<kurals.length;++i) {
+		    for(var j=0;j<kurals[i]["Kural"].length;++j) {
+			temp_kural = kurals[i]["Kural"][j];
+			if(temp_kural["Line1"].indexOf(options.query) != -1 || temp_kural["Line2"].indexOf(options.query) != -1) {
+			    temp_kural["Line1"] = temp_kural["Line1"].replace(options.query, '<span class="label label-success">' +options.query+'</span>');
+			    temp_kural["Line2"] = temp_kural["Line2"].replace(options.query, '<span class="label label-success">' +options.query+'</span>');
+			    temp_kural["Number"] %= 10;
+			    console.log(temp_kural);
+			    this.result.push(temp_kural);
+			}
+		    }
+		}
+		console.log(this.result);
 		this.render();
 		return this;
 	    };
 
 	    SearchView.prototype.render = function() {
-		$(this.el).html(this.template({query: this.query}));
+		$(this.el).html(this.template({query: this.query, results: this.result}));
 		return this;
 	    };
 
@@ -89,8 +110,10 @@
 	})(Backbone.View);
 
 	this.app = (_ref = window.app) != null ? _ref : {};
+	this.app.AppView = AppView;
 	this.app.HomeView = HomeView;
 	this.app.SearchView = SearchView;
+	new AppView();
 	return this;
     });
 
